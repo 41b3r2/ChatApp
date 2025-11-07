@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background"
+    android:padding="32dp">
+
+    <!-- Profile Image with Border -->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/dialog_profile_image"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/default_avatar"
+            app:civ_border_width="4dp"
+            app:civ_border_color="#3498DB" />
+
+        <View
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_alignEnd="@id/dialog_profile_image"
+            android:layout_alignBottom="@id/dialog_profile_image"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/online_indicator" />
+
+    </RelativeLayout>
+
+    <!-- User Info -->
+    <TextView
+        android:id="@+id/dialog_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="User Name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#2C3E50"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Active now"
+        android:textSize="16sp"
+        android:textColor="#27AE60"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Action Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/dialog_lets_chat_button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="💬 Let's Chat?"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="28dp"
+        app:backgroundTint="#3498DB"
+        android:textColor="#FFFFFF"
+        app:elevation="4dp"
+        android:layout_marginBottom="12dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/dialog_view_profile_button"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="View Profile"
+        android:textSize="16sp"
+        app:cornerRadius="24dp"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        app:strokeColor="#3498DB"
+        android:textColor="#3498DB" />
+
+</LinearLayout>

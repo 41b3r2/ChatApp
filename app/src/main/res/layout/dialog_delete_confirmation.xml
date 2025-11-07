@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Warning Icon -->
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/ic_warning"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        app:tint="@color/error_color" />
+
+    <!-- Confirmation Text Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:startIconDrawable="@drawable/ic_warning"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/deleteConfirmationInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Type 'DELETE' to confirm"
+            android:inputType="textCapCharacters" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Warning Message -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠️ This action is permanent and cannot be undone!\n\n• All your messages will be deleted\n• Your profile will be removed\n• You cannot recover this account"
+        android:textSize="14sp"
+        android:textColor="@color/error_color"
+        android:padding="12dp"
+        android:background="@drawable/error_background"
+        android:gravity="center" />
+
+</LinearLayout>
