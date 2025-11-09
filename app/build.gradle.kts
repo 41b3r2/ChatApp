@@ -9,7 +9,8 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.project.chatapp"
+        // Keep applicationId consistent with Kotlin namespace to avoid runtime ClassNotFound
+        applicationId = "com.project.chatapplication"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

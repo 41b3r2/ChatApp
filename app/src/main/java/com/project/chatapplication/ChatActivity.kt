@@ -43,7 +43,28 @@ class ChatActivity : AppCompatActivity() {
         dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/").reference
         imageUploadHelper = ImageUploadHelper(this)
 
-        supportActionBar?.title = name
+        // Populate custom header (back button, profile image, name)
+        binding.headerUserName.text = name ?: ""
+
+        // Wire header back button to finish
+        binding.backButton.setOnClickListener { finish() }
+
+        // Load partner user info (profile image and full name) if uid is available
+        if (!receiverUid.isNullOrEmpty()) {
+            dbRef.child("users").child(receiverUid!!).get().addOnSuccessListener { snap ->
+                val user = snap.getValue(User::class.java)
+                if (user != null) {
+                    val fullName = user.computeFullName().ifBlank { user.name ?: "" }
+                    binding.headerUserName.text = fullName
+                    val imageRef = if (!user.profileImageUrl.isNullOrEmpty() && user.profileImageUrl!!.startsWith("/")) {
+                        java.io.File(user.profileImageUrl!!)
+                    } else {
+                        user.profileImageUrl
+                    }
+                    com.bumptech.glide.Glide.with(this).load(imageRef).placeholder(R.drawable.default_avatar).into(binding.headerProfileImage)
+                }
+            }
+        }
 
         senderRoom = receiverUid + senderUid
         receiverRoom = senderUid + receiverUid
@@ -67,6 +88,40 @@ class ChatActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             pickImage.launch(intent)
+        }
+
+        // Wire more/options button to show popup menu actions
+        binding.moreOptionsButton.setOnClickListener { view ->
+            try {
+                val popup = android.widget.PopupMenu(this, view)
+                popup.menuInflater.inflate(R.menu.menu_chat, popup.menu)
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_view_profile -> {
+                            // Open profile view
+                            val intent = Intent(this, ProfileViewActivity::class.java)
+                            intent.putExtra("uid", receiverUid)
+                            startActivity(intent)
+                            true
+                        }
+                        R.id.action_clear_chat -> {
+                            // Clear local messages (remove node in both sender/receiver rooms)
+                            if (!senderRoom.isNullOrEmpty()) dbRef.child("chats").child(senderRoom!!).child("messages").removeValue()
+                            if (!receiverRoom.isNullOrEmpty()) dbRef.child("chats").child(receiverRoom!!).child("messages").removeValue()
+                            messageList.clear()
+                            messageAdapter.notifyDataSetChanged()
+                            true
+                        }
+                        R.id.action_block_user -> {
+                            // Simple placeholder: show toast
+                            android.widget.Toast.makeText(this, "User blocked (not implemented)", android.widget.Toast.LENGTH_SHORT).show()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                popup.show()
+            } catch (e: Exception) { }
         }
     }
 

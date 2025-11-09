@@ -2,36 +2,61 @@ package com.project.chatapplication
 
 import android.content.Context
 import android.net.Uri
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
-class ImageUploadHelper(private val context: Context) {    fun uploadProfileImage(
+/**
+ * ImageUploadHelper now saves images to the app's external files directory under folder "image".
+ * This avoids using Firebase Storage and stores a local file path that is saved to the database.
+ */
+class ImageUploadHelper(private val context: Context) {
+    fun uploadProfileImage(
         imageUri: Uri,
         userId: String,
         onSuccess: (String) -> Unit,
         onFailure: (Exception) -> Unit,
         onProgress: (Int) -> Unit
     ) {
-        val fileName = "${System.currentTimeMillis()}_profile_image"
-        val storageRef: StorageReference = FirebaseStorage.getInstance().getReference("profile_images/$userId/$fileName")
+        try {
+            val resolver = context.contentResolver
+            val input: InputStream? = resolver.openInputStream(imageUri)
+            if (input == null) {
+                onFailure(Exception("Unable to open image input"))
+                return
+            }
 
-        storageRef.putFile(imageUri)
-            .addOnSuccessListener { _ ->
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onSuccess(uri.toString())
-                }.addOnFailureListener {
-                    onFailure(it)
+            val imagesDir = File(context.getExternalFilesDir(null), "image")
+            if (!imagesDir.exists()) imagesDir.mkdirs()
+
+            val fileName = "${System.currentTimeMillis()}_profile.jpg"
+            val outFile = File(imagesDir, fileName)
+
+            FileOutputStream(outFile).use { out ->
+                val buffer = ByteArray(4 * 1024)
+                var read: Int
+                var total: Long = 0
+                val available = input.available().toLong().coerceAtLeast(1L)
+                while (input.read(buffer).also { read = it } != -1) {
+                    out.write(buffer, 0, read)
+                    total += read
+                    val progress = ((total * 100) / available).toInt().coerceIn(0, 100)
+                    onProgress(progress)
                 }
+                out.flush()
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-            .addOnProgressListener { taskSnapshot ->
-                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
-                onProgress(progress)
-            }
+
+            input.close()
+
+            // Return the absolute file path as the image URL that will be stored in the DB
+            onSuccess(outFile.absolutePath)
+
+        } catch (e: Exception) {
+            onFailure(e)
+        }
     }
 
+    // For conversation images we also save to the same folder and return the file path
     fun uploadConversationImage(
         imageUri: Uri,
         senderId: String,
@@ -40,24 +65,40 @@ class ImageUploadHelper(private val context: Context) {    fun uploadProfileImag
         onFailure: (Exception) -> Unit,
         onProgress: (Int) -> Unit
     ) {
-        val folderName = if (senderId > receiverId) "$senderId-$receiverId" else "$receiverId-$senderId"
-        val fileName = "${System.currentTimeMillis()}_${imageUri.lastPathSegment}"
-        val storageRef: StorageReference = FirebaseStorage.getInstance().getReference("conversation_images/$folderName/$fileName")
+        // reuse uploadProfileImage logic but give a different filename
+        try {
+            val resolver = context.contentResolver
+            val input: InputStream? = resolver.openInputStream(imageUri)
+            if (input == null) {
+                onFailure(Exception("Unable to open image input"))
+                return
+            }
 
-        storageRef.putFile(imageUri)
-            .addOnSuccessListener { taskSnapshot ->
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    onSuccess(uri.toString())
-                }.addOnFailureListener {
-                    onFailure(it)
+            val imagesDir = File(context.getExternalFilesDir(null), "image")
+            if (!imagesDir.exists()) imagesDir.mkdirs()
+
+            val fileName = "${System.currentTimeMillis()}_${imageUri.lastPathSegment ?: "img"}"
+            val outFile = File(imagesDir, fileName)
+
+            FileOutputStream(outFile).use { out ->
+                val buffer = ByteArray(4 * 1024)
+                var read: Int
+                var total: Long = 0
+                val available = input.available().toLong().coerceAtLeast(1L)
+                while (input.read(buffer).also { read = it } != -1) {
+                    out.write(buffer, 0, read)
+                    total += read
+                    val progress = ((total * 100) / available).toInt().coerceIn(0, 100)
+                    onProgress(progress)
                 }
+                out.flush()
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
-            .addOnProgressListener { taskSnapshot ->
-                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
-                onProgress(progress)
-            }
+
+            input.close()
+
+            onSuccess(outFile.absolutePath)
+        } catch (e: Exception) {
+            onFailure(e)
+        }
     }
 }

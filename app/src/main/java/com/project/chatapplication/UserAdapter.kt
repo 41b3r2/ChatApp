@@ -19,12 +19,17 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
         return UserViewHolder(view)
     }    override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val currentUser = filteredUserList[position]
-        holder.nameTextView.text = currentUser.name
-        holder.statusTextView.text = "Ready to chat"
+    holder.nameTextView.text = currentUser.name
+    holder.statusTextView.text = if (currentUser.isConnected) "Connected" else "Ready to chat"
 
         if (!currentUser.profileImageUrl.isNullOrEmpty()) {
+            val profileRef = if (currentUser.profileImageUrl!!.startsWith("/")) {
+                java.io.File(currentUser.profileImageUrl!!)
+            } else {
+                currentUser.profileImageUrl
+            }
             Glide.with(context)
-                .load(currentUser.profileImageUrl)
+                .load(profileRef)
                 .placeholder(R.drawable.default_avatar)
                 .into(holder.profileImageView)
         } else {
@@ -40,6 +45,13 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
         holder.chatIconView.setOnClickListener {
             (context as? MainActivity)?.showUserProfileDialog(currentUser)
         }
+            // Update per-row pending request badge
+            if (currentUser.pendingRequestCount > 0) {
+                holder.requestBadge.visibility = View.VISIBLE
+                holder.requestBadge.text = currentUser.pendingRequestCount.toString()
+            } else {
+                holder.requestBadge.visibility = View.GONE
+            }
     }
 
     override fun getItemCount(): Int {
@@ -69,5 +81,6 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
         val statusTextView: TextView = itemView.findViewById(R.id.statusTextView)
         val profileImageView: CircleImageView = itemView.findViewById(R.id.profile_image_item)
         val chatIconView: ImageView = itemView.findViewById(R.id.chatIconView)
+        val requestBadge: TextView = itemView.findViewById(R.id.requestBadge)
     }
 }

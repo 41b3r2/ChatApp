@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"
+    android:background="@drawable/login_gradient_background"
     tools:context=".RegistrationActivity">
 
 <LinearLayout
@@ -30,54 +30,92 @@
         android:layout_height="wrap_content"
         android:text="Join our community and start chatting!"
         android:textSize="16sp"
-        android:textColor="#7F8C8D"
+        android:textColor="#2C3E50"
         android:layout_marginBottom="40dp"/>
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp">
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profile_image"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/default_avatar"
-            app:civ_border_width="4dp"
-            app:civ_border_color="#3498DB" />
-
+    <!-- Removed profile image picker from registration to keep form minimal -->
         <ImageView
-            android:id="@+id/camera_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignEnd="@id/profile_image"
-            android:layout_alignBottom="@id/profile_image"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_camera"
-            android:background="@drawable/circle_button"
-            android:padding="8dp"
-            android:elevation="4dp" />    </RelativeLayout>
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/logo"
+            android:background="@drawable/logo_circle_background"
+            android:padding="24dp"
+            android:elevation="8dp" />
 
+    <!-- First Name -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="12dp"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
         app:startIconDrawable="@drawable/ic_person"
         app:startIconTint="#3498DB">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/nameEditText"
+            android:id="@+id/fnameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name"
+            android:hint="First Name"
             android:inputType="textPersonName"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Middle Name -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:boxBackgroundMode="outline"
+        app:startIconDrawable="@drawable/ic_person"
+        app:startIconTint="#3498DB">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/mnameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Middle Name (optional)"
+            android:inputType="textPersonName"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Last Name -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:boxBackgroundMode="outline"
+        app:startIconDrawable="@drawable/ic_person"
+        app:startIconTint="#3498DB">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/lnameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Last Name"
+            android:inputType="textPersonName"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Username -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:boxBackgroundMode="outline"
+        app:startIconDrawable="@drawable/ic_person"
+        app:startIconTint="#3498DB">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/usernameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:inputType="text"
             android:textSize="16sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -101,20 +139,16 @@
             android:hint="Email Address"
             android:inputType="textEmailAddress"
             android:textSize="16sp" />
-
     </com.google.android.material.textfield.TextInputLayout>
 
+
+    <!-- Password -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="12dp"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
         app:startIconDrawable="@drawable/ic_lock"
-        app:startIconTint="#3498DB"
         app:endIconMode="password_toggle">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -122,6 +156,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Password"
+            android:inputType="textPassword"
+            android:textSize="16sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Confirm Password -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:boxBackgroundMode="outline"
+        app:startIconDrawable="@drawable/ic_lock"
+        app:endIconMode="password_toggle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/confirmPasswordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password"
             android:inputType="textPassword"
             android:textSize="16sp" />
 

@@ -80,6 +80,19 @@
             android:padding="6dp"
             android:layout_marginStart="8dp" />
 
+        <!-- Pending request badge on the row (for users who already sent "Let's Chat?") -->
+        <TextView
+            android:id="@+id/requestBadge"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/badge_background"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:text="1"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

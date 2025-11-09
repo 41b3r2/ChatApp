@@ -43,6 +43,11 @@ class MyAccountActivity : AppCompatActivity() {
         setupUI()
         loadUserData()
         setupClickListeners()
+
+        // If opened from header notification button, open inbox immediately
+        if (intent?.getBooleanExtra("open_inbox", false) == true) {
+            showNotificationInbox()
+        }
     }
 
     private fun setupUI() {
@@ -70,7 +75,8 @@ class MyAccountActivity : AppCompatActivity() {
         }
 
         binding.notificationSettingsButton.setOnClickListener {
-            showNotificationSettings()
+            // Open in-account notification inbox for chat requests
+            showNotificationInbox()
         }
 
         binding.deleteAccountButton.setOnClickListener {
@@ -86,7 +92,7 @@ class MyAccountActivity : AppCompatActivity() {
         val currentUserId = auth.currentUser?.uid ?: return
         
         val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/")
-            .getReference("user").child(currentUserId)
+            .getReference("users").child(currentUserId)
         
         val progressDialog = ModernProgressDialog(this)
             .create()
@@ -114,10 +120,17 @@ class MyAccountActivity : AppCompatActivity() {
             userNameText.text = user.name
             userEmailText.text = auth.currentUser?.email
             
-            // Load profile image
+            // Load profile image (supports both remote URLs and local file paths)
             if (!user.profileImageUrl.isNullOrEmpty()) {
+                val imageRef = if (user.profileImageUrl!!.startsWith("/")) {
+                    // local absolute path
+                    java.io.File(user.profileImageUrl!!)
+                } else {
+                    user.profileImageUrl
+                }
+
                 Glide.with(this@MyAccountActivity)
-                    .load(user.profileImageUrl)
+                    .load(imageRef)
                     .placeholder(R.drawable.ic_person)
                     .circleCrop()
                     .into(profileImageView)
@@ -204,7 +217,7 @@ class MyAccountActivity : AppCompatActivity() {
     private fun updateProfileImageInDatabase(imageUrl: String) {
         val currentUserId = auth.currentUser?.uid ?: return
         val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/")
-            .getReference("user").child(currentUserId)
+            .getReference("users").child(currentUserId)
 
         dbRef.child("profileImageUrl").setValue(imageUrl)
             .addOnSuccessListener {
@@ -325,6 +338,78 @@ class MyAccountActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showNotificationInbox() {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/").reference
+
+        // Fetch pending chat requests where receiver is me
+        dbRef.child("chat_requests").orderByChild("receiverId").equalTo(currentUserId)
+            .get().addOnSuccessListener { snap ->
+                val pending = ArrayList<ChatRequest>()
+                for (c in snap.children) {
+                    val req = c.getValue(ChatRequest::class.java)
+                    if (req != null && req.status == "pending") pending.add(req)
+                }
+
+                if (pending.isEmpty()) {
+                    android.widget.Toast.makeText(this, "You have no notifications.", android.widget.Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                // Build a list of display strings with sender names
+                val items = pending.map { req ->
+                    // fetch sender name synchronously not possible here; we'll show uid and load name lazily
+                    "From: ${req.senderId} — Let's Chat?"
+                }.toTypedArray()
+
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Chat Requests")
+                builder.setItems(items) { dialog, which ->
+                    // on item click, show accept/decline dialog for that request
+                    val request = pending[which]
+                    showAcceptDeclineDialog(request)
+                }
+                builder.setNegativeButton("Close", null)
+                builder.show()
+            }
+    }
+
+    private fun showAcceptDeclineDialog(request: ChatRequest) {
+        val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/").reference.child("chat_requests").child(request.requestId!!)
+
+        AlertDialog.Builder(this)
+            .setTitle("${request.senderId} wants to chat")
+            .setMessage("Do you want to accept?")
+            .setPositiveButton("Yes") { _, _ ->
+                dbRef.child("status").setValue("accepted").addOnSuccessListener {
+                    // Notify the sender via notifications node
+                    val notificationData = mapOf(
+                        "senderId" to request.receiverId,
+                        "receiverId" to request.senderId,
+                        "type" to "chat_response",
+                        "response" to "accepted",
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                    FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/").getReference("notifications").child(request.senderId!!).push().setValue(notificationData)
+                    android.widget.Toast.makeText(this, "✅ Request accepted. You can now chat.", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("No") { _, _ ->
+                dbRef.child("status").setValue("declined").addOnSuccessListener {
+                    val notificationData = mapOf(
+                        "senderId" to request.receiverId,
+                        "receiverId" to request.senderId,
+                        "type" to "chat_response",
+                        "response" to "declined",
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                    FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/").getReference("notifications").child(request.senderId!!).push().setValue(notificationData)
+                    android.widget.Toast.makeText(this, "Request declined.", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            .show()
+    }
+
     private fun showDeleteAccountDialog() {
         AlertDialog.Builder(this)
             .setTitle("⚠️ Delete Account")
@@ -360,7 +445,7 @@ class MyAccountActivity : AppCompatActivity() {
 
         // Delete user data from database
         val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/")
-            .getReference("user").child(userId)
+            .getReference("users").child(userId)
         
         dbRef.removeValue()
             .addOnSuccessListener {

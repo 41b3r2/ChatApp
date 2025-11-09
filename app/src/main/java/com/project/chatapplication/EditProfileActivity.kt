@@ -91,7 +91,7 @@ class EditProfileActivity : AppCompatActivity() {
         progressDialog.show()
 
         val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/")
-            .getReference("user").child(currentUserId)
+            .getReference("users").child(currentUserId)
         
         dbRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -149,7 +149,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         val currentUserId = auth.currentUser?.uid ?: return
         val dbRef = FirebaseDatabase.getInstance("https://chatapp-9c53c-default-rtdb.firebaseio.com/")
-            .getReference("user").child(currentUserId)
+            .getReference("users").child(currentUserId)
 
         // If a new image is selected, upload it first
         if (selectedImageUri != null) {

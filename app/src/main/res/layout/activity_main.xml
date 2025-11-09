@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA"
+    android:background="@drawable/login_gradient_background"
     tools:context=".MainActivity">
 
     <!-- Header -->
@@ -26,6 +26,37 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF" />
+
+        <!-- Notification Inbox Button (with badge) -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp">
+
+            <ImageView
+                android:id="@+id/notificationInboxButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_notifications"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/notificationBadge"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:background="@drawable/badge_background"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:text="0"
+                android:gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
         <!-- My Account Button -->
         <ImageView
@@ -71,6 +102,28 @@
             android:textSize="16sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Connected Users (horizontal) -->
+    <TextView
+        android:id="@+id/connectionsHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Your Connections"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#2C3E50"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/connectedRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:clipToPadding="false"
+        android:visibility="gone" />
 
     <!-- Status Text -->
     <TextView

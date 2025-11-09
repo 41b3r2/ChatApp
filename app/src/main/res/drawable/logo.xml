@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Placeholder circular logo. Replace with your logo.png in res/drawable/logo.png to use the art you attached -->
+    <path
+        android:fillColor="#4DD0E1"
+        android:pathData="M54,6a48,48 0 1,0 0,96a48,48 0 1,0 0,-96z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M30,60 L78,60 L54,36 z"
+        android:alpha="0.9" />
+</vector>
